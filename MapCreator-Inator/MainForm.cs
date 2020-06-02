@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -54,12 +55,22 @@ namespace MapCreator_Inator
         private void updateMap()
         {
             int size = map_picture_box.Width;
-            int gizmos = 0;
-            if (show_nodes_check_box.Checked) gizmos |= MapRenderer.NODES;
-            if (show_distance_check_box.Checked) gizmos |= MapRenderer.DISTANCE;
-            map_picture_box.Image = null;
-            map_picture_box.Image = map_renderer.getImage(size, colormaps[maps_tab_menu.SelectedIndex], gizmos, (int)distance_numericUD.Value);
-            map_picture_box.Refresh();
+            if(size > 0)
+            {
+                int gizmos = 0;
+                if (show_nodes_check_box.Checked) gizmos |= MapRenderer.NODES;
+                if (show_distance_check_box.Checked) gizmos |= MapRenderer.DISTANCE;
+                Image to_dispose = null;
+                if (map_picture_box.Image == null) map_picture_box.Image = new Bitmap(size, size, PixelFormat.Format24bppRgb);
+                else if (map_picture_box.Image.Width != size)
+                {
+                    to_dispose = map_picture_box.Image;
+                    map_picture_box.Image = new Bitmap(size, size, PixelFormat.Format24bppRgb);
+                }
+                map_renderer.updateImage(map_picture_box.Image, colormaps[maps_tab_menu.SelectedIndex], gizmos, (int)distance_numericUD.Value);
+                map_picture_box.Refresh();
+                if (to_dispose != null) to_dispose.Dispose();
+            }
         }
 
         private void scale_track_bar_ValueChanged(object sender, EventArgs e)

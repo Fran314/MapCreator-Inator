@@ -29,17 +29,17 @@ namespace MapCreator_Inator
 			y_offset = 0;
 		}
 
-		public Bitmap getImage(int frame_size, Color[] colormap, int gizmos, int dist)
+		public void updateImage(Image to_modify, Color[] colormap, int gizmos, int dist)
 		{
-			if (frame_size <= 0) return new Bitmap(1, 1);
-			Bitmap to_return = new Bitmap(frame_size, frame_size, PixelFormat.Format24bppRgb);
+			int frame_size = to_modify.Width;
+			if (frame_size <= 0) return;
 
 			if ((frame_size - 1 + x_offset) / (frame_size * scale) >= 1) x_offset = (int)(frame_size * (scale - 1));
 			if ((frame_size - 1 + y_offset) / (frame_size * scale) >= 1) y_offset = (int)(frame_size * (scale - 1));
 
 			float factor = (mesh.getSize() - 1f) / (frame_size * scale);
 
-			BitmapData data = to_return.LockBits(new Rectangle(0, 0, to_return.Width, to_return.Height), ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
+			BitmapData data = ((Bitmap)to_modify).LockBits(new Rectangle(0, 0, to_modify.Width, to_modify.Height), ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
 			int stride = data.Stride;
 			float x, y, z_00, z_10, z_01, z_11, dec_x, dec_y, z;
 			int ix, iy, Niy, index;
@@ -71,11 +71,11 @@ namespace MapCreator_Inator
 					}
 				}
 			}
-            to_return.UnlockBits(data);
+			((Bitmap)to_modify).UnlockBits(data);
 
 			if ((gizmos & NODES) != 0)
 			{
-				using (Graphics gr = Graphics.FromImage(to_return))
+				using (Graphics gr = Graphics.FromImage(to_modify))
 				{
 					int start_i = (int)((x_offset + 2f) * (mesh.getSize() - 1f) / (scale * frame_size));
 					int stop_i = (int)((frame_size + x_offset + 2f) * (mesh.getSize() - 1f) / (scale * frame_size)) + 1;
@@ -92,33 +92,31 @@ namespace MapCreator_Inator
 				}
 			}
 
-			if((gizmos & DISTANCE) != 0)
-            {
-				int i = (int)Math.Floor(Math.Log10(max_length*(float)dist/scale));
+			if ((gizmos & DISTANCE) != 0)
+			{
+				int i = (int)Math.Floor(Math.Log10(max_length * (float)dist / scale));
 				int multiplier = 1;
-				if(scale * 5 * Math.Pow(10, i) / dist < max_length)
-                {
+				if (scale * 5 * Math.Pow(10, i) / dist < max_length)
+				{
 					multiplier = 5;
-                }
-				else if(scale * 2 * Math.Pow(10, i) / dist < max_length)
-                {
+				}
+				else if (scale * 2 * Math.Pow(10, i) / dist < max_length)
+				{
 					multiplier = 2;
-                }
+				}
 
 				int actual_len = (int)Math.Round(scale * frame_size * multiplier * Math.Pow(10, i) / dist);
 				string to_write = "";
 				if (i >= 0) to_write = (multiplier * Math.Pow(10, i)).ToString() + " km";
-				else if(i >= -3) to_write = (multiplier * Math.Pow(10, i + 3)).ToString() + " m";
+				else if (i >= -3) to_write = (multiplier * Math.Pow(10, i + 3)).ToString() + " m";
 				else to_write = (multiplier * Math.Pow(10, i + 6)).ToString() + " mm";
 
-				using (Graphics gr = Graphics.FromImage(to_return))
+				using (Graphics gr = Graphics.FromImage(to_modify))
 				{
 					gr.FillRectangle(Brushes.Black, (int)(frame_size * 0.02), (int)(frame_size * 0.98), actual_len, 4);
 					gr.DrawString(to_write, SystemFonts.DefaultFont, Brushes.Black, (int)(frame_size * 0.02), (int)(frame_size * 0.98) - 14);
 				}
 			}
-
-			return to_return;
 		}
 
 		public float setScaleFixingPoint(float new_scale, int pos_x, int pos_y)
