@@ -17,7 +17,7 @@ namespace MapCreator_Inator
     {
         private int last_x, last_y;
         private int curr_log_scale;
-        private int N = 200;
+        private int N = 1000;
         private int octaves = 12;
         private Mesh map;
         private MapRenderer map_renderer;
@@ -60,14 +60,8 @@ namespace MapCreator_Inator
                 int gizmos = 0;
                 if (show_nodes_check_box.Checked) gizmos |= MapRenderer.NODES;
                 if (show_distance_check_box.Checked) gizmos |= MapRenderer.DISTANCE;
-                Image to_dispose = null;
-                if (map_picture_box.Image == null) map_picture_box.Image = new Bitmap(size, size, PixelFormat.Format24bppRgb);
-                else if (map_picture_box.Image.Width != size)
-                {
-                    to_dispose = map_picture_box.Image;
-                    map_picture_box.Image = new Bitmap(size, size, PixelFormat.Format24bppRgb);
-                }
-                map_renderer.updateImage(map_picture_box.Image, colormaps[maps_tab_menu.SelectedIndex], gizmos, (int)distance_numericUD.Value);
+                Image to_dispose = map_picture_box.Image;
+                map_picture_box.Image = map_renderer.getImage(size, maps_tab_menu.SelectedIndex, gizmos, (int)distance_numericUD.Value);
                 map_picture_box.Refresh();
                 if (to_dispose != null) to_dispose.Dispose();
             }
@@ -132,7 +126,7 @@ namespace MapCreator_Inator
             }
         }
 
-        private void randomize_button_Click(object sender, EventArgs e)
+        private void generate_button_Click(object sender, EventArgs e)
         {
             if (random_seed_check_box.Checked)
             {
@@ -160,6 +154,7 @@ namespace MapCreator_Inator
 
         private void initComponents2()
         {
+            this.DoubleBuffered = true;
             nodes_numericUD.Value = N;
             octaves_numericUD.Value = octaves;
         }

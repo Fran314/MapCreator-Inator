@@ -34,12 +34,13 @@
             this.political_tab = new System.Windows.Forms.TabPage();
             this.map_picture_box = new System.Windows.Forms.PictureBox();
             this.info_panel = new System.Windows.Forms.Panel();
+            this.map_width_label = new System.Windows.Forms.Label();
             this.octaves_label = new System.Windows.Forms.Label();
             this.octaves_numericUD = new System.Windows.Forms.NumericUpDown();
             this.km_label = new System.Windows.Forms.Label();
             this.show_distance_check_box = new System.Windows.Forms.CheckBox();
             this.distance_numericUD = new System.Windows.Forms.NumericUpDown();
-            this.randomize_button = new System.Windows.Forms.Button();
+            this.generate_button = new System.Windows.Forms.Button();
             this.nodes_label = new System.Windows.Forms.Label();
             this.nodes_numericUD = new System.Windows.Forms.NumericUpDown();
             this.seed_text_box = new System.Windows.Forms.TextBox();
@@ -50,10 +51,9 @@
             this.scale_track_bar = new System.Windows.Forms.TrackBar();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.map_width_label = new System.Windows.Forms.Label();
             this.loadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.maps_tab_menu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.map_picture_box)).BeginInit();
             this.info_panel.SuspendLayout();
@@ -115,7 +115,7 @@
             this.info_panel.Controls.Add(this.km_label);
             this.info_panel.Controls.Add(this.show_distance_check_box);
             this.info_panel.Controls.Add(this.distance_numericUD);
-            this.info_panel.Controls.Add(this.randomize_button);
+            this.info_panel.Controls.Add(this.generate_button);
             this.info_panel.Controls.Add(this.nodes_label);
             this.info_panel.Controls.Add(this.nodes_numericUD);
             this.info_panel.Controls.Add(this.seed_text_box);
@@ -128,6 +128,15 @@
             this.info_panel.Name = "info_panel";
             this.info_panel.Size = new System.Drawing.Size(199, 553);
             this.info_panel.TabIndex = 1;
+            // 
+            // map_width_label
+            // 
+            this.map_width_label.AutoSize = true;
+            this.map_width_label.Location = new System.Drawing.Point(6, 234);
+            this.map_width_label.Name = "map_width_label";
+            this.map_width_label.Size = new System.Drawing.Size(62, 13);
+            this.map_width_label.TabIndex = 17;
+            this.map_width_label.Text = "Map Width:";
             // 
             // octaves_label
             // 
@@ -205,15 +214,15 @@
             0});
             this.distance_numericUD.ValueChanged += new System.EventHandler(this.distance_numericUD_ValueChanged);
             // 
-            // randomize_button
+            // generate_button
             // 
-            this.randomize_button.Location = new System.Drawing.Point(10, 203);
-            this.randomize_button.Name = "randomize_button";
-            this.randomize_button.Size = new System.Drawing.Size(180, 23);
-            this.randomize_button.TabIndex = 10;
-            this.randomize_button.Text = "Randomize";
-            this.randomize_button.UseVisualStyleBackColor = true;
-            this.randomize_button.Click += new System.EventHandler(this.randomize_button_Click);
+            this.generate_button.Location = new System.Drawing.Point(10, 203);
+            this.generate_button.Name = "generate_button";
+            this.generate_button.Size = new System.Drawing.Size(180, 23);
+            this.generate_button.TabIndex = 10;
+            this.generate_button.Text = "Generate";
+            this.generate_button.UseVisualStyleBackColor = true;
+            this.generate_button.Click += new System.EventHandler(this.generate_button_Click);
             // 
             // nodes_label
             // 
@@ -338,34 +347,25 @@
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "File";
             // 
-            // editToolStripMenuItem
-            // 
-            this.editToolStripMenuItem.Name = "editToolStripMenuItem";
-            this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
-            this.editToolStripMenuItem.Text = "Edit";
-            // 
-            // map_width_label
-            // 
-            this.map_width_label.AutoSize = true;
-            this.map_width_label.Location = new System.Drawing.Point(6, 234);
-            this.map_width_label.Name = "map_width_label";
-            this.map_width_label.Size = new System.Drawing.Size(62, 13);
-            this.map_width_label.TabIndex = 17;
-            this.map_width_label.Text = "Map Width:";
-            // 
             // loadToolStripMenuItem
             // 
             this.loadToolStripMenuItem.Name = "loadToolStripMenuItem";
-            this.loadToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.loadToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
             this.loadToolStripMenuItem.Text = "Load";
             this.loadToolStripMenuItem.Click += new System.EventHandler(this.loadToolStripMenuItem_Click);
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
             this.saveToolStripMenuItem.Text = "Save";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
+            // 
+            // editToolStripMenuItem
+            // 
+            this.editToolStripMenuItem.Name = "editToolStripMenuItem";
+            this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
+            this.editToolStripMenuItem.Text = "Edit";
             // 
             // MainForm
             // 
@@ -413,7 +413,7 @@
         private System.Windows.Forms.CheckBox random_seed_check_box;
         private System.Windows.Forms.Label nodes_label;
         private System.Windows.Forms.NumericUpDown nodes_numericUD;
-        private System.Windows.Forms.Button randomize_button;
+        private System.Windows.Forms.Button generate_button;
         private System.Windows.Forms.NumericUpDown distance_numericUD;
         private System.Windows.Forms.CheckBox show_distance_check_box;
         private System.Windows.Forms.Label km_label;

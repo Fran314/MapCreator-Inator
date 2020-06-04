@@ -10,8 +10,9 @@ namespace MapCreator_Inator
     {
         private int N;
         private float c;
-        private float[] mesh;
-        private OpenSimplexNoise noise;
+		private float[] noise_mesh;
+		//private float[] height_mesh;
+		private OpenSimplexNoise noise;
 
         public Mesh(int N)
         {
@@ -22,7 +23,8 @@ namespace MapCreator_Inator
 		{
 			this.N = N;
 			c = this.N / 8f;
-			mesh = new float[this.N * this.N];
+			noise_mesh = new float[this.N * this.N];
+			//height_mesh = new float[this.N * this.N];
 		}
 
 		public long randomize(int octaves)
@@ -70,21 +72,21 @@ namespace MapCreator_Inator
 					if (e > max) max = e;
 					if (e < min) min = e;
 
-					mesh[i + N * j] = (float)e;
+					noise_mesh[i + N * j] = (float)e;
 				}
 			}
 		}
 		public void setNode(int pos, float node)
         {
-			mesh[pos] = node;
+			noise_mesh[pos] = node;
         }
 		public float[] getMesh()
         {
-			return mesh;
+			return noise_mesh;
         }
 		public float getVal(int pos)
 		{
-			return mesh[pos];
+			return noise_mesh[pos];
 		}
 		public int getSize()
 		{
