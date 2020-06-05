@@ -14,34 +14,21 @@ namespace MapCreator_Inator
 		public const int NODES = 1 << 0,
 						DISTANCE = 1 << 1;
 
-		public const int HEIGHTMAP = 0,
-						POLITICALMAP = 1;
-
 		private float max_length = 1 / 6f;
 
 		private Color[] height_colormap, political_colormap;
 		private Mesh map;
 
-		private int x_offset, y_offset;
-		private float scale;
-
 		public MapRenderer(Mesh map)
 		{
 			this.map = map;
-			scale = 1f;
-			x_offset = 0;
-			y_offset = 0;
 
 			initializeColormaps();
 		}
 
-		private Bitmap drawHeightMap(int frame_size)
+		public Bitmap drawHeightMap(float scale, int x_offset, int y_offset, int frame_size)
         {
-			if (frame_size <= 0) return new Bitmap(1, 1);
 			Bitmap to_return = new Bitmap(frame_size, frame_size, PixelFormat.Format24bppRgb);
-
-			if ((frame_size - 1 + x_offset) / (frame_size * scale) >= 1) x_offset = (int)(frame_size * (scale - 1));
-			if ((frame_size - 1 + y_offset) / (frame_size * scale) >= 1) y_offset = (int)(frame_size * (scale - 1));
 
 			float factor = (map.getSize() - 1f) / (frame_size * scale);
 
@@ -78,12 +65,10 @@ namespace MapCreator_Inator
 				}
 			}
 			to_return.UnlockBits(data);
-
 			return to_return;
 		}
-		private Bitmap drawPoliticalMap(int frame_size)
+		public Bitmap drawPoliticalMap(float scale, int x_offset, int y_offset, int frame_size)
 		{
-			if (frame_size <= 0) return new Bitmap(1, 1);
 			Bitmap to_return = new Bitmap(frame_size, frame_size, PixelFormat.Format24bppRgb);
 
 			/*
@@ -94,9 +79,6 @@ namespace MapCreator_Inator
 					gr.DrawLine(pen, 0, 0, 10, 10);
 			}
 			*/
-
-			if ((frame_size - 1 + x_offset) / (frame_size * scale) >= 1) x_offset = (int)(frame_size * (scale - 1));
-			if ((frame_size - 1 + y_offset) / (frame_size * scale) >= 1) y_offset = (int)(frame_size * (scale - 1));
 
 			float factor = (map.getSize() - 1f) / (frame_size * scale);
 
@@ -125,27 +107,26 @@ namespace MapCreator_Inator
 						dec_y = y - iy;
 						z = z_00 * (1 - dec_x) * (1 - dec_y) + z_10 * dec_x * (1 - dec_y) + z_01 * (1 - dec_x) * dec_y + z_11 * dec_x * dec_y;
 
-						if(z < 0.5)
+						index = (i * 3) + j * stride;
+						if (z < 0.5)
 						{
-							index = (int)Math.Round(z * (political_colormap.Length - 1));
-							ptr[(i * 3) + j * stride] = political_colormap[index].B;
-							ptr[(i * 3) + j * stride + 1] = political_colormap[index].G;
-							ptr[(i * 3) + j * stride + 2] = political_colormap[index].R;
+							ptr[index] = political_colormap[0].B;
+							ptr[index + 1] = political_colormap[0].G;
+							ptr[index + 2] = political_colormap[0].R;
 						}
 						else
                         {
-							if(ptr[(i * 3) + j * stride] == 0)
+							if(ptr[index] == 0)
 							{
-								index = (int)Math.Round(z * (political_colormap.Length - 1));
-								ptr[(i * 3) + j * stride] = political_colormap[index].B;
-								ptr[(i * 3) + j * stride + 1] = political_colormap[index].G;
-								ptr[(i * 3) + j * stride + 2] = political_colormap[index].R;
+								ptr[index] = political_colormap[1].B;
+								ptr[index + 1] = political_colormap[1].G;
+								ptr[index + 2] = political_colormap[1].R;
 							}
 							else
 							{
-								ptr[(i * 3) + j * stride] = 0;
-								ptr[(i * 3) + j * stride + 1] = 0;
-								ptr[(i * 3) + j * stride + 2] = 0;
+								ptr[index] = 0;
+								ptr[index + 1] = 0;
+								ptr[index + 2] = 0;
 							}
                         }
 					}
@@ -155,7 +136,7 @@ namespace MapCreator_Inator
 			return to_return;
 		}
 
-		private void drawGizmos(Bitmap to_modify, int gizmos, int dist)
+		public void drawGizmos(Bitmap to_modify, float scale, int x_offset, int y_offset, int gizmos, int dist)
 		{
 			int frame_size = to_modify.Width;
 			if ((gizmos & NODES) != 0)
@@ -202,64 +183,6 @@ namespace MapCreator_Inator
 					gr.DrawString(to_write, SystemFonts.DefaultFont, Brushes.Black, (int)(frame_size * 0.02), (int)(frame_size * 0.98) - 14);
 				}
 			}
-		}
-		
-		public Bitmap getImage(int frame_size, int map_type, int gizmos, int dist)
-		{
-			Bitmap new_image = null;
-			switch(map_type)
-			{
-				case HEIGHTMAP:
-					new_image = drawHeightMap(frame_size);
-					break;
-				case POLITICALMAP:
-					new_image = drawPoliticalMap(frame_size);
-					break;
-			}
-
-			drawGizmos(new_image, gizmos, dist);
-			return new_image;
-		}
-
-		public float setScaleFixingPoint(float new_scale, int pos_x, int pos_y)
-        {
-			float ds = new_scale / scale;
-			return changeScaleFixingPoint(ds, pos_x, pos_y);
-        }
-		public float changeScaleFixingPoint(float ds, int pos_x, int pos_y)
-		{
-			float c = ds;
-			float temp_scale = scale * c;
-			if (temp_scale < 1f)
-			{
-				temp_scale = 1f;
-				c = temp_scale / scale;
-				scale = temp_scale;
-			}
-			else if (temp_scale > Math.Pow(Math.E, 11))
-			{
-				temp_scale = (float)Math.Pow(Math.E, 11);
-				c = temp_scale / scale;
-				scale = temp_scale;
-			}
-			else
-            {
-				scale = temp_scale;
-            }
-
-			x_offset = (int)(c * (pos_x + x_offset) - pos_x);
-			y_offset = (int)(c * (pos_y + y_offset) - pos_y);
-			if (x_offset < 0) x_offset = 0;
-			if (y_offset < 0) y_offset = 0;
-
-			return scale;
-		}
-		public void changeOffset(int dx, int dy)
-		{
-			x_offset += dx;
-			y_offset += dy;
-			if (x_offset < 0) x_offset = 0;
-			if (y_offset < 0) y_offset = 0;
 		}
 	
 		private void initializeColormaps()

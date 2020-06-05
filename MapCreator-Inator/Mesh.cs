@@ -6,16 +6,15 @@ using System.Threading.Tasks;
 
 namespace MapCreator_Inator
 {
-    class Mesh
-    {
-        private int N;
-        private float c;
-		private float[] noise_mesh;
-		//private float[] height_mesh;
+	class Mesh
+	{
+		private int N;
+		private float c;
+		private float[] mesh;
 		private OpenSimplexNoise noise;
 
-        public Mesh(int N)
-        {
+		public Mesh(int N)
+		{
 			reset(N);
 		}
 
@@ -23,15 +22,7 @@ namespace MapCreator_Inator
 		{
 			this.N = N;
 			c = this.N / 8f;
-			noise_mesh = new float[this.N * this.N];
-			//height_mesh = new float[this.N * this.N];
-		}
-
-		public long randomize(int octaves)
-		{
-			long seed = Guid.NewGuid().GetHashCode();
-			randomize(octaves, seed);
-			return seed;
+			mesh = new float[this.N * this.N];
 		}
 
 		public void randomize(int octaves, long seed)
@@ -45,12 +36,12 @@ namespace MapCreator_Inator
 				{
 					double e = 0;
 					double pow = 0.5, div = 2;
-					for(int k = 0; k < octaves ; k++)
+					for (int k = 0; k < octaves; k++)
 					{
 						pow *= 2;
 						div /= 2;
 						e += div * noise.eval01(i * pow * 5f / N, j * pow * 5f / N);
-                    }
+					}
 					e = e / (2 - div);
 					if (i < c)
 					{
@@ -72,21 +63,27 @@ namespace MapCreator_Inator
 					if (e > max) max = e;
 					if (e < min) min = e;
 
-					noise_mesh[i + N * j] = (float)e;
+					mesh[i + N * j] = (float)e;
 				}
 			}
 		}
-		public void setNode(int pos, float node)
+		public void setVal(int pos, float val)
+		{
+			mesh[pos] = val;
+		}
+		public void increaseVal(int pos, float dv)
         {
-			noise_mesh[pos] = node;
-        }
+			mesh[pos] += dv;
+			if (mesh[pos] < 0) mesh[pos] = 0;
+			else if (mesh[pos] > 1) mesh[pos] = 1;
+		}
 		public float[] getMesh()
-        {
-			return noise_mesh;
-        }
+		{
+			return mesh;
+		}
 		public float getVal(int pos)
 		{
-			return noise_mesh[pos];
+			return mesh[pos];
 		}
 		public int getSize()
 		{
